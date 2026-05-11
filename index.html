@@ -421,12 +421,12 @@ async function slackNotifyAutor(a, producerUrl){
     + `\n\n_Kliknite link ispod kako biste otvorili obrazac za producenta i dovršili ugovor:_\n`
     + `<${producerUrl}|➡️ Otvori obrazac za producenta>`;
 
-  const res = await fetch(SLACK_WEBHOOK, {
+await fetch(SLACK_WEBHOOK, {
     method:'POST',
+    mode:'no-cors',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({text:msg})
   });
-  if(!res.ok) throw new Error('Slack webhook greška: '+res.status);
 }
 
 // ── STEP 2 INIT (Producent) ──────────────────────────────────────
