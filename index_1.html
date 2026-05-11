@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autorski Ugovor — Dinaridi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script>
+window.addEventListener('load', function() {
+  if (typeof docx === 'undefined') {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';
+    document.head.appendChild(s);
+  }
+});
+</script>
+<style>
+:root{--ink:#fff;--paper:#000;--cream:#111;--accent:#e03030;--muted:#666;--border:#222;--success:#2a9a4a;--input-bg:#111}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#000;color:#fff;min-height:100vh}
+header{border-bottom:1px solid #222;padding:1.2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;background:#000;position:sticky;top:0;z-index:100}
+.logo{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;color:#666}
+.step-indicator{display:flex;align-items:center;gap:.5rem;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#444}
+.step-dot{width:6px;height:6px;border-radius:50%;background:#333;transition:background .3s}
+.step-dot.active{background:#e03030}.step-dot.done{background:#e03030}
+main{max-width:720px;margin:0 auto;padding:3.5rem 2rem 6rem}
+.step-panel{display:none;animation:fadeIn .4s ease}.step-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:#e03030;margin-bottom:.5rem}
+h1{font-family:'DM Mono',monospace;font-size:2.4rem;font-weight:500;line-height:1.1;letter-spacing:-.02em;margin-bottom:1rem}
+h1 .red{color:#e03030}
+.intro{color:#666;font-size:.88rem;line-height:1.6;margin-bottom:3rem;max-width:480px}
+.fsec{border-top:1px solid #222;padding-top:2rem;margin-bottom:2.5rem}
+.ftitle{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:#555;margin-bottom:1.2rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+.f{display:flex;flex-direction:column;gap:.4rem}
+.f.s2{grid-column:span 2}
+label{font-size:.75rem;color:#888;letter-spacing:.03em}
+label .r{color:#e03030;margin-left:2px}
+label .h{color:#555;font-size:.72rem;margin-left:4px}
+input,select,textarea{font-family:'DM Sans',sans-serif;font-size:.88rem;padding:.65rem .85rem;border:1px solid #333;background:#111;color:#fff;border-radius:3px;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#555}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .85rem center;padding-right:2.2rem;cursor:pointer}
+textarea{resize:vertical;min-height:80px}
+.toggle{display:flex;border:1px solid #333;border-radius:3px;overflow:hidden}
+.toggle input[type=radio]{display:none}
+.toggle label{flex:1;text-align:center;padding:.6rem 1rem;cursor:pointer;font-size:.82rem;color:#555;background:#000;transition:all .2s;border:none;border-right:1px solid #333}
+.toggle label:last-of-type{border-right:none}
+.toggle input[type=radio]:checked+label{background:#e03030;color:#fff}
+.rate-row{display:grid;grid-template-columns:auto 80px 140px 1fr;gap:.6rem;align-items:center}
+.rlabel{font-size:.72rem;color:#555;white-space:nowrap}
+.btn{font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:.9rem 2.4rem;background:#e03030;color:#fff;border:none;border-radius:2px;cursor:pointer;transition:background .2s,transform .1s}
+.btn:hover{background:#c02020}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-secondary{background:#111;border:1px solid #333;color:#888}.btn-secondary:hover{background:#1a1a1a;border-color:#555;color:#fff}
+.btn-row{display:flex;gap:1rem;align-items:center;margin-top:2.5rem}
+.box{background:#111;border:1px solid #222;border-radius:4px;padding:1.5rem;margin-top:2rem}
+.boxtitle{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:#555;margin-bottom:.8rem}
+.success{background:#0a1a0e;border:1px solid #1a4a2a;border-radius:4px;padding:2.5rem 2rem;text-align:center;margin-top:2rem}
+.success-icon{font-size:2.5rem;margin-bottom:1rem}
+.success h2{font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;margin-bottom:.6rem;color:#4aca7a;text-transform:uppercase}
+.success p{color:#666;font-size:.88rem;line-height:1.6}
+.errmsg{color:#e03030;font-size:.72rem;font-family:'DM Mono',monospace;margin-top:.3rem;display:none}
+.f.err input,.f.err select{border-color:#e03030}
+.f.err .errmsg{display:block}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:.5rem;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.summary-table{width:100%;font-size:.82rem;border-collapse:collapse;line-height:2}
+.summary-table td:first-child{color:var(--muted);width:40%}
+.producer-banner{background:#0d0d0d;border:1px solid #2a1a1a;border-left:3px solid #e03030;border-radius:4px;padding:1rem 1.2rem;margin-bottom:2rem;font-size:.78rem;color:#888;line-height:1.6}
+.producer-banner strong{color:#e03030;display:block;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.3rem}
+@media(max-width:600px){header{padding:1rem 1.2rem}main{padding:2rem 1.2rem 5rem}h1{font-size:1.8rem}.grid{grid-template-columns:1fr}.f.s2{grid-column:span 1}.grid3{grid-template-columns:1fr 1fr}.rate-row{grid-template-columns:auto 1fr;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Autorski Ugovori</div>
+  <div class="step-indicator">
+    <div class="step-dot active" id="dot1"></div>
+    <span id="steplbl">Korak 1 od 2</span>
+    <div class="step-dot" id="dot2"></div>
+  </div>
+</header>
+<main>
+
+<!-- ═══ STEP 1 — AUTOR ═══ -->
+<div class="step-panel active" id="step1">
+  <div class="eyebrow">Korak 1 — Autor</div>
+  <h1>Vaši<br><span class="red">Podaci</span></h1>
+  <p class="intro">Ispunite osobne podatke. Nakon slanja producent će primiti obavijest i kontaktirati vas u vezi potpisivanja ugovora.</p>
+
+  <div class="fsec">
+    <div class="ftitle">Osobni podaci</div>
+    <div class="grid">
+      <div class="f s2" id="f-ime">
+        <label>Ime i prezime <span class="r">*</span></label>
+        <input type="text" id="ime" placeholder="npr. Ana Horvat">
+        <span class="errmsg">Unesite ime i prezime.</span>
+      </div>
+      <div class="f s2" id="f-adresa">
+        <label>Adresa (ulica i broj) <span class="r">*</span></label>
+        <input type="text" id="adresa" placeholder="npr. Ilica 45">
+        <span class="errmsg">Unesite adresu.</span>
+      </div>
+      <div class="f" id="f-pbr">
+        <label>Poštanski broj <span class="r">*</span></label>
+        <input type="text" id="pbr" placeholder="10000" inputmode="numeric">
+        <span class="errmsg">4–6 znamenki.</span>
+      </div>
+      <div class="f" id="f-grad">
+        <label>Grad <span class="r">*</span></label>
+        <input type="text" id="grad" placeholder="Zagreb">
+        <span class="errmsg">Unesite grad.</span>
+      </div>
+      <div class="f" id="f-oib">
+        <label>OIB <span class="r">*</span></label>
+        <input type="text" id="oib" placeholder="00000000000" maxlength="11" inputmode="numeric">
+        <span class="errmsg">OIB mora imati 11 znamenki.</span>
+      </div>
+      <div class="f" id="f-iban">
+        <label>IBAN <span class="r">*</span></label>
+        <input type="text" id="iban" placeholder="HR…" maxlength="21">
+        <span class="errmsg">Format: HR + 19 znakova.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fsec">
+    <div class="ftitle">PDV status</div>
+    <div class="grid">
+      <div class="f s2">
+        <label>Jeste li obveznik PDV-a?</label>
+        <div class="toggle">
+          <input type="radio" name="pdv" id="pdv0" value="ne" checked><label for="pdv0">Nisam obveznik</label>
+          <input type="radio" name="pdv" id="pdv1" value="da"><label for="pdv1">Jesam obveznik</label>
+        </div>
+      </div>
+      <div class="f s2" id="pdv-preview">
+        <div style="background:#0d0d0d;border-left:2px solid #e03030;padding:.8rem 1rem;border-radius:0 3px 3px 0;margin-top:.3rem;">
+          <div style="font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:#444;margin-bottom:.4rem;">Tekst koji ulazi u ugovor:</div>
+          <div id="pdv-text" style="font-size:.78rem;color:#888;line-height:1.6;font-style:italic;">PRODUCENT će izvršiti uplatu poreza, prireza i eventualnih doprinosa, a AUTORU isplatiti pripadajući neto iznos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fsec">
+    <div class="ftitle">Strukovne organizacije</div>
+    <div class="grid">
+      <div class="f s2">
+        <label>Jeste li član/ica strukovne organizacije?</label>
+        <div class="toggle">
+          <input type="radio" name="clan" id="clan0" value="ne" checked><label for="clan0">Nisam član/ica</label>
+          <input type="radio" name="clan" id="clan1" value="da"><label for="clan1">Jesam član/ica</label>
+        </div>
+      </div>
+      <div class="f s2" id="f-org" style="display:none">
+        <label>Organizacija <span class="r">*</span></label>
+        <select id="org">
+          <option value="">— Odaberi —</option>
+          <option>Društvo hrvatskih filmskih redatelja (DHFR)</option>
+          <option>Hrvatska udruga dramskih umjetnika (HUDA)</option>
+          <option>Hrvatska udruga filmskih skladatelja (HUFS)</option>
+          <option>Društvo hrvatskih scenarista (DHS)</option>
+          <option>Hrvatska udruga kostimografa (HUK)</option>
+          <option>Hrvatska udruga scenografa (HUS)</option>
+          <option>Društvo hrvatskih filmskih snimatelja (DHFS)</option>
+          <option>Sindikat hrvatskih glumaca (SHG)</option>
+          <option>Hrvatska glazbena unija (HGU)</option>
+          <option>Hrvatska udruga producenata (HUP)</option>
+          <option>Ostalo</option>
+        </select>
+        <span class="errmsg">Odaberite organizaciju.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" id="btn1" onclick="step1Submit()">Pošalji producentu →</button>
+  </div>
+  <div id="result1" style="display:none"></div>
+</div>
+
+<!-- ═══ STEP 2 — PRODUCENT ═══ -->
+<div class="step-panel" id="step2">
+  <div class="eyebrow">Korak 2 — Producent</div>
+  <h1>Postavljanje<br><span class="red">Ugovora</span></h1>
+  <p class="intro">Ispunite podatke o produkciji i uvjetima angažmana te preuzmite gotov ugovor.</p>
+
+  <div id="author-summary" class="producer-banner"></div>
+
+  <div class="fsec">
+    <div class="ftitle">Producent</div>
+    <div class="grid">
+      <div class="f s2" id="f-producent">
+        <label>Producentska kuća <span class="r">*</span></label>
+        <select id="producent">
+          <option value="">— Odaberi —</option>
+          <option value="DINARIDI FILM d.o.o.|Gornje padine 32|10000 Zagreb|00873840186">Dinaridi Film d.o.o.</option>
+          <option value="PIPSER d.o.o.|Mohorovičićeva ulica 22|10000 Zagreb|42653355224">Pipser d.o.o.</option>
+          <option value="ESG FILMS d.o.o.|Mohorovičićeva ulica 22|10000 Zagreb|07720195992">ESG Films d.o.o.</option>
+        </select>
+        <span class="errmsg">Odaberite producentsku kuću.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fsec">
+    <div class="ftitle">Ugovor</div>
+    <div class="grid3">
+      <div class="f" id="f-br_ugovora">
+        <label>Broj ugovora <span class="r">*</span> <span class="h">br. ___-2026</span></label>
+        <input type="text" id="br_ugovora" placeholder="01">
+        <span class="errmsg">Unesite broj.</span>
+      </div>
+      <div class="f" id="f-datum_potpisa">
+        <label>Datum potpisivanja <span class="r">*</span></label>
+        <input type="date" id="datum_potpisa">
+        <span class="errmsg">Unesite datum.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fsec">
+    <div class="ftitle">Djelo</div>
+    <div class="grid">
+      <div class="f" id="f-vrsta_djela">
+        <label>Vrsta djela <span class="r">*</span></label>
+        <select id="vrsta_djela">
+          <option value="">— Odaberi —</option>
+          <option>dugometražni igrani film</option>
+          <option>kratki igrani film</option>
+          <option>dugometražni dokumentarni film</option>
+          <option>kratki dokumentarni film</option>
+          <option>televizijska serija</option>
+          <option>animirani film</option>
+          <option>eksperimentalni film</option>
+        </select>
+        <span class="errmsg">Odaberite vrstu.</span>
+      </div>
+      <div class="f" id="f-naslov_djela">
+        <label>Radni naslov <span class="r">*</span></label>
+        <input type="text" id="naslov_djela" placeholder="npr. Muzara">
+        <span class="errmsg">Unesite naslov.</span>
+      </div>
+      <div class="f s2">
+        <label>Kratki opis <span class="h">opcionalno</span></label>
+        <textarea id="opis_djela" placeholder="Kratki opis projekta"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="fsec">
+    <div class="ftitle">Angažman</div>
+    <div class="grid">
+      <div class="f s2" id="f-pozicija">
+        <label>Pozicija / vrsta posla <span class="r">*</span></label>
+        <input type="text" id="pozicija" placeholder="npr. direktor fotografije, scenograf, montažer…">
+        <span class="errmsg">Unesite poziciju.</span>
+      </div>
+      <div class="f" id="f-datum_od">
+        <label>Početak angažmana <span class="r">*</span></label>
+        <input type="date" id="datum_od">
+        <span class="errmsg">Unesite datum početka.</span>
+      </div>
+      <div class="f" id="f-datum_do">
+        <label>Kraj angažmana <span class="r">*</span></label>
+        <input type="date" id="datum_do">
+        <span class="errmsg">Unesite datum kraja.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fsec">
+    <div class="ftitle">Naknada</div>
+    <div class="grid">
+      <div class="f" id="f-iznos_bruto">
+        <label>Naknada bruto (EUR) <span class="r">*</span></label>
+        <input type="number" id="iznos_bruto" placeholder="0.00" step="0.01" min="0">
+        <span class="errmsg">Unesite iznos.</span>
+      </div>
+      <div class="f" id="f-trosak">
+        <label>Ukupni trošak isplatitelja (EUR) <span class="r">*</span></label>
+        <input type="number" id="trosak" placeholder="0.00" step="0.01" min="0">
+        <span class="errmsg">Unesite trošak.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="fsec">
+    <div class="ftitle">Plaćanje</div>
+    <div class="f s2" style="margin-bottom:1.2rem">
+      <label>Broj rata</label>
+      <div class="toggle">
+        <input type="radio" name="rate" id="r0" value="0" checked><label for="r0">Jednokratno</label>
+        <input type="radio" name="rate" id="r2" value="2"><label for="r2">2 rate</label>
+        <input type="radio" name="rate" id="r3" value="3"><label for="r3">3 rate</label>
+      </div>
+    </div>
+    <div id="rate-rows" style="display:none;flex-direction:column;gap:.8rem;margin-bottom:1rem"></div>
+    <div class="f" id="jedno-uvjet">
+      <label>Uvjet / rok isplate</label>
+      <input type="text" id="uvjet" placeholder="npr. po završetku snimanja, najkasnije do 31.12.2026.">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" id="btn2" onclick="step2Submit()">Generiraj i preuzmi ugovor →</button>
+  </div>
+  <div id="result2" style="display:none"></div>
+</div>
+
+</main>
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────
+const SLACK_WEBHOOK = 'https://hooks.slack.com/services/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';
+
+// ── UTILS ───────────────────────────────────────────────────────
+const fmtD = d => { if(!d) return ''; const [y,m,day]=d.split('-'); return `${+day}.${+m}.${y}.`; };
+const fmtE = n => (+n).toLocaleString('hr-HR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const ppSplit = v => { const [name,addr,city,oib]=v.split('|'); return {name,addr,city,oib}; };
+
+function n2w(n) {
+  const o=['','jedan','dva','tri','četiri','pet','šest','sedam','osam','devet','deset','jedanaest','dvanaest','trinaest','četrnaest','petnaest','šesnaest','sedamnaest','osamnaest','devetnaest'];
+  const t=['','','dvadeset','trideset','četrdeset','pedeset','šezdeset','sedamdeset','osamdeset','devedeset'];
+  const s=['','sto','dvjesto','tristo','četristo','petsto','šesto','sedamsto','osamsto','devetsto'];
+  function c(x){if(x===0)return'';if(x<20)return o[x];if(x<100)return t[Math.floor(x/10)]+(x%10?' i '+o[x%10]:'');return s[Math.floor(x/100)]+(x%100?' '+c(x%100):'');}
+  const i=Math.floor(n),d=Math.round((n-i)*100);
+  let r='';if(i>=1000)r+=c(Math.floor(i/1000))+' tisuća ';
+  r+=c(i%1000);if(d>0)r+=' i '+c(d)+'/100';
+  return r.trim()||'nula';
+}
+
+function setErr(id,show){const el=document.getElementById('f-'+id);if(el)el.classList.toggle('err',show);}
+function gv(id){return (document.getElementById(id)||{}).value||'';}
+
+// ── PDV PREVIEW ─────────────────────────────────────────────────
+document.addEventListener('change', function(e){
+  if(e.target.name==='pdv'){
+    const txt=document.getElementById('pdv-text');
+    if(!txt)return;
+    if(e.target.value==='da'){
+      txt.textContent='Autor je obveznik PDV-a te se na iznos obračunava PDV, a sve se isplate vrše sukladno primljenim sredstvima.';
+    } else {
+      txt.textContent='PRODUCENT će izvršiti uplatu poreza, prireza i eventualnih doprinosa, a AUTORU isplatiti pripadajući neto iznos.';
+    }
+  }
+  if(e.target.name==='clan'){
+    document.getElementById('f-org').style.display=
+      document.querySelector('input[name=clan]:checked').value==='da'?'':'none';
+  }
+});
+
+// ── STEP 1 SUBMIT (Autor) ───────────────────────────────────────
+async function step1Submit(){
+  let ok=true;
+  [['ime',v=>v.trim().split(/\s+/).length>=2],
+   ['adresa',v=>v.trim()!==''],
+   ['pbr',v=>/^\d{4,6}$/.test(v.trim())],
+   ['grad',v=>v.trim()!==''],
+   ['oib',v=>/^\d{11}$/.test(v.trim())],
+   ['iban',v=>/^HR\d{19}$/.test(v.trim().replace(/\s/g,''))]
+  ].forEach(([id,chk])=>{const v=gv(id);const p=chk(v);setErr(id,!p);if(!p)ok=false;});
+
+  const clan=document.querySelector('input[name=clan]:checked').value;
+  if(clan==='da'){const ov=gv('org');setErr('org',!ov);if(!ov)ok=false;}
+  if(!ok)return;
+
+  const pdv=document.querySelector('input[name=pdv]:checked').value;
+  const AD={
+    ime:gv('ime').trim(),
+    adresa:gv('adresa').trim(),
+    pbr:gv('pbr').trim(),
+    grad:gv('grad').trim(),
+    oib:gv('oib').trim(),
+    iban:gv('iban').trim().replace(/\s/g,''),
+    clan,
+    org:clan==='da'?gv('org'):'',
+    pdv
+  };
+
+  const btn=document.getElementById('btn1');
+  btn.innerHTML='<span class="spin"></span>Šaljem…';
+  btn.disabled=true;
+
+  try{
+    // Encode author data into URL for producer
+    const enc=encodeURIComponent(JSON.stringify(AD));
+    const producerUrl=location.origin+location.pathname+'?a='+enc;
+
+    await slackNotifyAutor(AD, producerUrl);
+
+    btn.style.display='none';
+    document.getElementById('result1').style.display='';
+    document.getElementById('result1').innerHTML=`<div class="success">
+      <div class="success-icon">✉️</div>
+      <h2>Podaci su poslani!</h2>
+      <p>Producent je obaviješten putem Slacka. Kontaktirat će vas u vezi s potpisivanjem ugovora.</p>
+    </div>`;
+    document.getElementById('result1').scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(err){
+    btn.innerHTML='Pošalji producentu →';
+    btn.disabled=false;
+    alert('Greška pri slanju: '+err.message);
+    console.error(err);
+  }
+}
+
+// ── SLACK — Autor obavijest ──────────────────────────────────────
+async function slackNotifyAutor(a, producerUrl){
+  const orgLine = a.clan==='da' ? `\n*Strukovne organizacije:* ${a.org}` : '';
+  const pdvLine = a.pdv==='da' ? 'Obveznik PDV-a' : 'Nije obveznik PDV-a';
+
+  const msg = `*Novi zahtjev za autorski ugovor* :writing_hand:\n\n`
+    + `:bust_in_silhouette: *Autor:* ${a.ime}\n`
+    + `*Adresa:* ${a.adresa}, ${a.pbr} ${a.grad}\n`
+    + `*OIB:* ${a.oib}  |  *IBAN:* ${a.iban}\n`
+    + `*PDV:* ${pdvLine}`
+    + orgLine
+    + `\n\n_Kliknite link ispod kako biste otvorili obrazac za producenta i dovršili ugovor:_\n`
+    + `<${producerUrl}|➡️ Otvori obrazac za producenta>`;
+
+  const res = await fetch(SLACK_WEBHOOK, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:msg})
+  });
+  if(!res.ok) throw new Error('Slack webhook greška: '+res.status);
+}
+
+// ── STEP 2 INIT (Producent) ──────────────────────────────────────
+let AD_FROM_URL = null;
+
+function initProducerStep(){
+  const params = new URLSearchParams(location.search);
+  const a = params.get('a');
+  if(!a) return;
+
+  try { AD_FROM_URL = JSON.parse(decodeURIComponent(a)); }
+  catch(e){ console.error('Decode error:',e); return; }
+
+  // Switch to step 2
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.add('active');
+  document.getElementById('dot1').className='step-dot done';
+  document.getElementById('dot2').className='step-dot active';
+  document.getElementById('steplbl').textContent='Korak 2 od 2';
+  document.getElementById('datum_potpisa').valueAsDate = new Date();
+
+  // Show author summary banner
+  const ad = AD_FROM_URL;
+  const orgLine = ad.clan==='da'&&ad.org ? `<br>Strukovne organizacije: <strong>${ad.org}</strong>` : '';
+  const pdvLine = ad.pdv==='da' ? 'Obveznik PDV-a' : 'Nije obveznik PDV-a';
+  document.getElementById('author-summary').innerHTML=
+    `<strong>Podaci autora</strong>`
+    +`${ad.ime} — ${ad.adresa}, ${ad.pbr} ${ad.grad}<br>`
+    +`OIB: ${ad.oib} &nbsp;|&nbsp; IBAN: ${ad.iban}<br>`
+    +`${pdvLine}${orgLine}`;
+
+  // Init rates
+  document.querySelectorAll('input[name=rate]').forEach(r=>r.addEventListener('change',buildRates));
+  document.addEventListener('input',e=>{
+    if(e.target.id&&e.target.id.match(/^rp\d/)){
+      const i=e.target.id.slice(2);
+      const b=+gv('iznos_bruto')||0,p=+e.target.value||0;
+      const el=document.getElementById('re'+i);
+      if(el&&b)el.value=(b*p/100).toFixed(2);
+    }
+  });
+}
+
+function buildRates(){
+  const n=+document.querySelector('input[name=rate]:checked').value;
+  const rc=document.getElementById('rate-rows');
+  const je=document.getElementById('jedno-uvjet');
+  if(n===0){rc.style.display='none';rc.innerHTML='';je.style.display='';return;}
+  je.style.display='none';rc.style.display='flex';rc.innerHTML='';
+  for(let i=1;i<=n;i++){
+    const d=document.createElement('div');d.className='rate-row';
+    d.innerHTML=`<span class="rlabel">${i}. rata</span>
+      <input type="number" id="rp${i}" placeholder="%" min="0" max="100" step="1" title="Postotak" style="text-align:center">
+      <input type="number" id="re${i}" placeholder="EUR" min="0" step="0.01" title="Iznos EUR">
+      <input type="text" id="ru${i}" placeholder="Uvjet isplate">`;
+    rc.appendChild(d);
+  }
+}
+
+// ── STEP 2 SUBMIT (Producent) ────────────────────────────────────
+async function step2Submit(){
+  if(!AD_FROM_URL){ alert('Nedostaju podaci autora.'); return; }
+
+  let ok=true;
+  [['producent',v=>v!==''],['br_ugovora',v=>v.trim()!==''],['datum_potpisa',v=>v!==''],
+   ['vrsta_djela',v=>v!==''],['naslov_djela',v=>v.trim()!==''],['pozicija',v=>v.trim()!==''],
+   ['datum_od',v=>v!==''],['datum_do',v=>v!==''],
+   ['iznos_bruto',v=>+v>0],['trosak',v=>+v>0]
+  ].forEach(([id,chk])=>{const v=gv(id);const p=chk(v);setErr(id,!p);if(!p)ok=false;});
+  if(!ok)return;
+
+  const nr=+document.querySelector('input[name=rate]:checked').value;
+  const rate=[];
+  for(let i=1;i<=nr;i++) rate.push({pct:gv('rp'+i),eur:gv('re'+i),uvjet:gv('ru'+i)});
+
+  const PD={
+    producent:gv('producent'),br:gv('br_ugovora').trim(),datum:gv('datum_potpisa'),
+    vrsta:gv('vrsta_djela'),naslov:gv('naslov_djela').trim(),opis:gv('opis_djela').trim(),
+    poz:gv('pozicija').trim(),od:gv('datum_od'),do:gv('datum_do'),
+    bruto:gv('iznos_bruto'),trosak:gv('trosak'),
+    nr,rate,uvjet:gv('uvjet')
+  };
+
+  const btn=document.getElementById('btn2');
+  btn.innerHTML='<span class="spin"></span>Generiram ugovor…';
+  btn.disabled=true;
+
+  try{
+    const blob = await makeDocx(PD, AD_FROM_URL);
+    const pp = ppSplit(PD.producent);
+    const fname = `Autorski_ugovor_${PD.br}-2026_${AD_FROM_URL.ime.replace(/\s+/g,'_')}.docx`;
+    dlBlob(blob, fname);
+
+    btn.style.display='none';
+    document.getElementById('result2').style.display='';
+    document.getElementById('result2').innerHTML=`<div class="success">
+      <div class="success-icon">📄</div>
+      <h2>Ugovor preuzet!</h2>
+      <p>Ugovor se preuzima na vaše računalo. Pregledajte ga i, ako je sve u redu, pošaljite autoru na potpis.</p>
+    </div>`;
+    document.getElementById('result2').scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(err){
+    btn.innerHTML='Generiraj i preuzmi ugovor →';
+    btn.disabled=false;
+    alert('Greška: '+err.message);
+    console.error(err);
+  }
+}
+
+function dlBlob(blob,name){
+  const u=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=u;a.download=name;a.click();
+  URL.revokeObjectURL(u);
+}
+
+// ── DOCX GENERATION ─────────────────────────────────────────────
+async function makeDocx(p,a){
+  const {Document,Packer,Paragraph,TextRun,AlignmentType,TabStopType}=docx;
+  const pp=ppSplit(p.producent);
+  const bruto=+p.bruto, trosak=+p.trosak;
+  const iznosR=n2w(bruto);
+
+  let placTekst='';const rateLines=[];
+  if(p.nr===0){placTekst=p.uvjet?`jednokratno, ${p.uvjet}`:'jednokratno, po završetku posla';}
+  else{
+    placTekst=`u ${p.nr} (${p.nr===2?'dvije':'tri'}) rate, kako slijedi:`;
+    (p.rate||[]).forEach((r,i)=>rateLines.push(`${i+1}. rata — ${r.pct}% ukupnog iznosa, odnosno ${r.eur} EUR, ${r.uvjet}`));
+  }
+
+  const F='Times New Roman',SZ=22;
+  const R=(t,b,it)=>new TextRun({text:t,bold:b,italics:it,size:SZ,font:F});
+  const P=(runs,o={})=>new Paragraph({
+    children:Array.isArray(runs)?runs:[runs],
+    spacing:{before:o.b||0,after:o.a||100},
+    alignment:o.al||AlignmentType.JUSTIFIED,
+    indent:o.ind?{left:567}:undefined
+  });
+  const ART=n=>P([R(`Članak ${n}.`,true)],{b:200,a:60,al:AlignmentType.LEFT});
+  const SUB=(c,t)=>P([R(`${c}. ${t}`)],{ind:true,a:80});
+  const EL=P([R('')],{a:80});
+
+  const kids=[
+    P([R(`AUTORSKI UGOVOR br. ${p.br}-2026`,true)],{al:AlignmentType.CENTER,b:0,a:300}),
+    P([R('između:',true)],{a:60}),EL,
+    P([R(`${pp.name},`,true),R(` ${pp.addr}, ${pp.city}, OIB: ${pp.oib}, zastupan po direktorici Miljenki Čogelji`)],{a:40}),
+    P([R('(u daljnjem tekstu moguće naveden kao: PRODUCENT ili NARUČITELJ)')],{a:120}),
+    EL,P([R('i')],{al:AlignmentType.CENTER,a:80}),EL,
+    P([R(`${a.ime}, `),R(`${a.adresa}, ${a.pbr} ${a.grad}, `),R(`OIB: ${a.oib}, IBAN: ${a.iban}`)],{a:40}),
+    ...(a.clan==='da'&&a.org?[P([R(`član/ica ${a.org}`)],{a:40})]:[] ),
+    P([R('(u daljnjem tekstu: AUTOR)')],{a:100}),EL,
+    P([R('u Zagrebu, dana '),R(fmtD(p.datum),true),R(' godine sklapaju')],{al:AlignmentType.CENTER,b:0,a:280}),
+
+    ART(1),P([R(`PRODUCENT proizvodi ${p.vrsta}${p.opis?' — '+p.opis:''} pod radnim naslovom „${p.naslov}" (dalje DJELO).`)]),
+    ART(2),P([R(`AUTOR prihvaća da pod uvjetima iz ovog Ugovora preuzme u ekipi DJELA poslove i dužnost `),R(p.poz,true),R(` te se obvezuje da će angažman i poslove obavljati osobno, savjesno i profesionalno u skladu sa scenarijem, operativnim planom produkcije, te osobito po uputama redatelja i PRODUCENTA ili njegovog predstavnika.`)]),
+    ART(3),P([R(`Prema operativnom planu proizvodnje, AUTOR je u obvezi prema ovom ugovoru od `),R(fmtD(p.od),true),R(` do `),R(fmtD(p.do),true),R(` (radno vrijeme prema planu i dnevnoj dispoziciji), odnosno do kraja snimanja.`)]),
+    SUB('3.1','Obveza AUTORA uključuje i neophodan period za pripremu snimanja i eventualno spremanje ili druge radove nakon ili prije snimanja.'),
+    SUB('3.2','U slučaju da radi više sile dođe do promjene u terminu snimanja, AUTOR je dužan raditi na DJELU do svršetka posla bez posebne naknade.'),
+    SUB('3.3','Ako do promjene termina dođe iz ostalih razloga, AUTOR će nastaviti rad na DJELU do svršetka cjelokupnog posla, a dodatnu naknadu za takav slučaj dogovorit će AUTOR i PRODUCENT nakon što PRODUCENT ustanovi razloge produljenju snimanja, a prema kriterijima korištenima za određivanje osnovne naknade.'),
+    ART(4),P([R('AUTOR jamči postupanje u skladu s operativnim planom snimanja, te se pri obavljanju posla obvezuje pridržavati zahtjeva redatelja i PRODUCENTA ili njegovog predstavnika.')]),
+    SUB('4.1','AUTOR se obvezuje da će sve javne izjave, komentare, intervjue i sl. u odnosu na DJELO, scenarij, redatelja, PRODUCENTA te procese rada prethodno obavezno uskladiti sa PRODUCENTOM.'),
+    ART(5),P([R('PRODUCENT se obvezuje AUTORU predstaviti i dati na uvid Etički kodeks o sprječavanju uznemiravanja i neprimjerenog ponašanja u audiovizualnoj produkciji (dalje u tekstu: "ETIČKI KODEKS").')]),
+    SUB('5.1','ETIČKI KODEKS je javno dostupan na službenoj internetskoj stranici PRODUKCIJE.'),
+    SUB('5.2','ETIČKI KODEKS utvrđuje poslovne principe i pravila ponašanja zasnovana na etičkim načelima u sveukupnom radnom okruženju, s ciljem uspostave zajedničkog okvira vrijednosti koji potiče profesionalno, odgovorno i dostojanstveno ponašanje svih sudionika u procesu stvaranja audiovizualnog djela te prevenira zlouporabu moći ili hijerarhijske nadređenosti, diskriminaciju, nasilje te seksualno i/ili rodno uznemiravanje.'),
+    SUB('5.3','ETIČKI KODEKS primjenjuje se na projekte sufinancirane sredstvima Hrvatskog audiovizualnog centra.'),
+    SUB('5.4','Potpisom ovog Ugovora AUTOR potvrđuje da mu je ETIČKI KODEKS bio dostupan na uvid prije sklapanja Ugovora, da je upoznat sa sadržajem i svrhom ETIČKOG KODEKSA te da prihvaća obvezu postupanja u skladu s njegovim odredbama tijekom čitavog svog angažmana na projektu.'),
+    ART(6),P([R('Ukoliko PRODUCENT krene u snimanje DJELA i pod uvjetom da AUTOR izvrši sve svoje ugovorne obveze iz ovog ugovora te za rad na DJELU i prijenos, odnosno osnivanje svih prava u korist PRODUCENTA vremenski, sadržajno i prostorno neograničeno, isti će isplatiti AUTORU naknadu u iznosu od')]),
+    P([R(`${bruto.toFixed(2)} EUR bruto (slovima: ${iznosR} eura)`,true)],{al:AlignmentType.CENTER,b:60,a:60}),
+    P([R(`dok je ukupni trošak isplatitelja ${trosak.toFixed(2)} EUR. Navedeni ukupni trošak isplatitelja obuhvaća neto iznos honorara, kao i sva pripadajuća davanja koja se obračunavaju na ili iz autorskog honorara.`)]),
+    P([R(`Način plaćanja: Na IBAN naveden u glavi ugovora, ${placTekst}`)]),
+    ...rateLines.map(l=>P([R(l)],{ind:true,a:60})),
+    SUB('6.1',a.pdv==='da'?'Autor je obveznik PDV-a te se na iznos obračunava PDV, a sve se isplate vrše sukladno primljenim sredstvima.':'PRODUCENT će izvršiti uplatu poreza, prireza i eventualnih doprinosa, a AUTORU isplatiti pripadajući neto iznos.'),
+    SUB('6.2','Isplata naknade vrši se kao neto isplata. PRODUCENT se obvezuje izvršiti uplatu poreza, prireza i eventualnih doprinosa, a AUTORU isplatiti pripadajući neto iznos.'),
+    SUB('6.3','Članstvo u strukovnoj udruzi AUTOR je dužan potvrditi prije isplate radi pravilnog obračuna porezne osnovice, a ukoliko isto ne učini, PRODUCENT može po svom odabiru ili neposredno, temeljem ovog ugovora zatražiti odgovarajuću potvrdu ili izvršiti obračun kao da porezne olakšice nema.'),
+    ART(7),P([R('PRODUCENT posjeduje umjetničke, tehničke i poslovne informacije, tajne i povjerljive prirode koje se odnose na priču, scenarij, proces rada, pripremu, proizvodnju i distribuciju DJELA.')]),
+    SUB('7.1','PRODUCENT je voljan izložiti i povjeriti AUTORU informacije iz gornjeg stavka ovog članka pod uvjetom da ih AUTOR ne prenosi na bilo koji način trećoj strani, niti ih na bilo koji način ne iskoristi, izuzev na načine dopuštene ovim ugovorom.'),
+    SUB('7.2','AUTOR se obvezuje odnositi prema primljenim informacijama sa strogom povjerljivosti i tajnosti, ne otkriti nijednoj trećoj strani bilo koju od informacija primljenih od PRODUCENTA te ne iskoristiti ni jednu od tih informacija bez prethodne pisane suglasnosti PRODUCENTA.'),
+    ART(8),P([R('Ovim Ugovorom AUTOR osniva za PRODUCENTA pravo isključivog, prostorno, sadržajno i vremenski neograničenog iskorištavanja DJELA za potrebe stvaranja audiovizualnog djela te korištenja u audiovizualnom djelu, u cjelini ili u dijelovima, na svaki poznati ili još uvijek nepoznati način bez obzira na tehnologiju kojom je DJELO nastalo ili podlogu na kojoj je fiksirano.')]),
+    SUB('8.1','Slijedom uvodne odredbe predmetnog članka, AUTOR za PRODUCENTA osniva naročito sljedeća isključiva prava: pravo umnožavanja; pravo distribuiranja (stavljanja u promet), uključujući pravo iznajmljivanja i javne posudbe; sva prava priopćavanja autorskog djela javnosti što naročito uključuje pravo neograničenog emitiranja i emitiranja putem satelita, reemitiranja, prijenosa izravnim protokom, činjenja dostupnim javnosti, pravo prerade (uključujući prijevod, transliteraciju, nahsinkronizaciju); kao i pravo koristiti DJELO na sve posebno nespomenute načine, bez ograničenja, a bez potrebe za bilo kakvim dodatnim pristankom AUTORA.'),
+    SUB('8.2','Osnivanje isključivih prava u korist PRODUCENTA ne utječe na možebitna prava na naknadu koja se kao neodreciva ostvaruje u sustavu obvezne kolektivne zaštite autorskih prava.'),
+    SUB('8.3','AUTOR nadalje dozvoljava PRODUCENTU da proizvede "making of" DJELA, te da ga koristi u komercijalne odnosno promidžbene svrhe DJELA.'),
+    ART(9),P([R('AUTOR predmetnim Ugovorom ovlašćuje PRODUCENTA da stečena prava može samostalno prenositi na treće pravne ili fizičke osobe te da će bez odlaganja potpisati potrebne dokumente za prijenos prava.')]),
+    SUB('9.1','AUTOR je upoznat i suglasan da kopiju ovog ugovora PRODUCENT dostavlja HAVC-u, revizorskoj kući te drugim nadležnim tijelima te da se s ugovorom i podacima AUTORA navedena tijela smiju koristiti na način sukladan Općoj uredbi o zaštiti osobnih podataka, ali poštujući odredbe drugih pozitivnih propisa.'),
+    SUB('9.2','AUTOR je suglasan da autorska prava koja je predmetnim ugovorom prenio na PRODUCENTA neće prenositi na treće osobe.'),
+    ART(10),P([R('AUTOR je o bilo kakvom kašnjenju u vezi s obavljanjem svog posla i posla svoga sektora dužan odmah obavijestiti PRODUCENTA.')]),
+    SUB('10.1','AUTOR se obvezuje da za vrijeme trajanja ovog Ugovora neće prihvaćati nikakve druge angažmane koji bi ga mogli spriječiti u obavljanju poslova preuzetih Ugovorom.'),
+    SUB('10.2','Za cijelo vrijeme trajanja rada na DJELU, AUTOR je dužan učiniti sve što je potrebno da bi u svakom trenutku osigurao svoj neometan rad na DJELU.'),
+    ART(11),P([R('U slučaju da PRODUCENT procjeni da AUTOR nije u mogućnosti raditi ili nastaviti rad na DJELU te time ometa, usporava ili ugrožava rad i dovršenje DJELA, PRODUCENT je ovlašten donijeti trenutačnu odluku o zamjeni AUTORA bez suglasnosti AUTORA.')]),
+    SUB('11.1','Ukoliko se AUTOR ne pridržava ovog Ugovora, a posebno zahtjeva PRODUCENTA i redatelja, PRODUCENT će pozvati AUTORA da odmah uskladi svoj rad.'),
+    SUB('11.2','Ukoliko AUTOR ne postupi prema zahtjevima PRODUCENTA, PRODUCENT može odmah raskinuti ugovor, trenutačno udaljiti AUTORA s posla bez AUTOROVE suglasnosti.'),
+    SUB('11.3','U slučaju opisanom u prethodnom stavku ovog članka, PRODUCENT određuje i regulira AUTOROVU naknadu proporcionalno s izvršenim obvezama iz ovog Ugovora, ali može umanjiti AUTOROV honorar te zahtijevati naknadu štete koju je AUTOR prouzročio. U takvom slučaju PRODUCENT je ovlašten koristiti se prenesenim pravima iz članka 9 i 10.'),
+    ART(12),P([R('AUTOR je po obavljenom poslu dužan predati izvještaj, vratiti Producentu sva povjerena radna i financijska sredstva, materijale i predmete nabavljene za potrebe izrade Filma te predati urednu dokumentaciju i popise koji su rezultat njegovog obavljenog rada sukladno ovom Ugovoru.')]),
+    SUB('12.1','Materijali koji proizlaze iz AUTOROVOG rada temeljem ovog ugovora, prije svega nosači zvuka i slike te skice i prijedlozi, kao i svi ostali materijali u trenutku predaje PRODUCENTU postaju vlasništvo PRODUCENTA.'),
+    ART(13),P([R('PRODUCENT se obvezuje:')]),
+    ...['1. pravodobno dostaviti AUTORU plan obveza u fazi priprema za realizaciju DJELA, plan i raspored snimanja s jasno naznačenim rasporedom snimanja koji se odnosi na AUTORA, kao i plan aktivnosti u razdoblju promocije i eksploatacije DJELA s popisom obveza AUTORA.',
+        '2. postupati u skladu s utvrđenim planom obveza, planom i rasporedom snimanja te planom aktivnosti, a u slučaju njihovih izmjena o istima pravodobno obavijestiti AUTORA kako bi mogao uskladiti svoje druge obveze.',
+        '3. osigurati AUTORU sve potrebne tehničke, organizacijske i druge uvjete potrebne za angažman prema ovom Ugovoru.',
+        '4. poštovati integritet AUTORA kao umjetnika, kao i njegovo pravo na osobni stav i mišljenje u vezi s angažmanom koji obavlja, pod uvjetom da se isto ne protivi osnovnim načelima suradnje i zahtjevima PRODUCENTA.',
+        '5. tijekom produkcije i snimanja DJELA postupati u skladu s pravilima i običajima producentske struke, prema najboljem znanju i profesionalnim standardima.',
+        '6. organizirati i provesti produkciju DJELA na način da isto bude proizvedeno u skladu s najvišim produkcijskim standardima dostupnima na teritoriju proizvodnje te navedeni standard poštovati tijekom cijelog razdoblja važenja ovog Ugovora.',
+        '7. osigurati da radni tjedan obuhvaća pet (5) / šest (6) snimajućih dana, pri čemu se prijelazni dani i putni dani ne smatraju snimajućim danima i ne podliježu dodatnoj naknadi.',
+        '8. osigurati AUTORU odgovarajuće osiguranje od ozljeda na radu tijekom snimanja, u skladu s važećim zakonskim propisima.',
+        '9. isplatiti AUTORU ugovorenu naknadu, kao i sve opravdane troškove povezane sa snimanjem i radom na DJELU, uključujući troškove smještaja, prehrane i prijevoza.',
+        '10. ispuniti sve druge obveze preuzete ovim Ugovorom, na način i u rokovima utvrđenima njegovim odredbama.'
+    ].map(t=>P([R(t)],{ind:true,a:60})),
+    ART(14),P([R('PRODUCENT ima pravo bez naknade i posebne dozvole upotrebljavati ime i slike AUTORA u cilju promidžbe i eksploatacije DJELA u zemlji i inozemstvu, ali u granicama opće poznatih načela pristojnosti i pravila struke.')]),
+    SUB('14.1','PRODUCENT se obvezuje naznačiti ime AUTORA na "špici" DJELA i promidžbenim materijalima kako je to uobičajeno u filmskim i audiovizualnim medijima.'),
+    SUB('14.2','"Špicu" DJELA, kao i ostale promidžbene materijale odobrava PRODUCENT na prijedlog redatelja.'),
+    ART(15),P([R('Ovaj Ugovor predstavlja potpuni sporazum između stranaka, a sve izmjene i dopune moraju biti u pisanom obliku i potpisane od obje strane.')]),
+    SUB('15.1','U slučaju spora u vezi s tumačenjem ili primjenom Ugovora, ugovorne strane nastojat će spor riješiti mirnim putem. Ukoliko u tome ne uspiju, za rješavanje spora nadležan je stvarno nadležni sud u Zagrebu.'),
+    SUB('15.2','Predmetni je Ugovor izrađen u 3 (tri) istovjetna primjerka, od kojih AUTOR zadržava 1 (jedan), a PRODUCENT 2 (dva) primjerka.'),
+
+    EL,EL,
+    new Paragraph({children:[R(`ZA ${pp.name}`,true),new TextRun({text:'\t\t\t\t',size:SZ,font:F}),R('AUTOR:',true)],
+      tabStops:[{type:TabStopType.LEFT,position:5040}],spacing:{before:500,after:500}}),
+    new Paragraph({children:[R('________________________________'),new TextRun({text:'\t',size:SZ,font:F}),R('________________________________')],
+      tabStops:[{type:TabStopType.LEFT,position:5040}],spacing:{before:0,after:60}}),
+    new Paragraph({children:[R('Miljenka Čogelja, direktorica',false,true),new TextRun({text:'\t',size:SZ,font:F}),R(a.ime,false,true)],
+      tabStops:[{type:TabStopType.LEFT,position:5040}],spacing:{before:0,after:0}}),
+  ];
+
+  const doc2=new Document({
+    styles:{default:{document:{run:{font:F,size:SZ}}}},
+    sections:[{
+      properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1440,bottom:1440,left:1701}}},
+      children:kids
+    }]
+  });
+  return Packer.toBlob(doc2);
+}
+
+// ── BOOT ────────────────────────────────────────────────────────
+function waitForDocx(cb,n){n=n||0;if(typeof docx!=="undefined"){cb();return;}if(n>50){cb();return;}setTimeout(function(){waitForDocx(cb,n+1);},100);}
+waitForDocx(function(){ initProducerStep(); });
+</script>
+</body>
+</html>
