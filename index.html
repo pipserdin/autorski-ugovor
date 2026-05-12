@@ -316,8 +316,7 @@ textarea{resize:vertical;min-height:80px}
   </div>
 
   <div class="btn-row">
-    <button class="btn" id="btn2-docx" onclick="step2Submit('docx')">Preuzmi kao Word →</button>
-    <button class="btn btn-secondary" id="btn2-pdf" onclick="step2Submit('pdf')">Preuzmi kao PDF →</button>
+    <button class="btn" id="btn2-docx" onclick="step2Submit()">Preuzmi kao Word →</button>
   </div>
   <div id="result2" style="display:none"></div>
 </div>
@@ -419,6 +418,8 @@ async function step1Submit(){
 }
 
 // ── SLACK — Autor obavijest ──────────────────────────────────────
+let SLACK_TS = null;
+
 async function slackNotifyAutor(a, producerUrl){
   const orgLine = a.clan==='da' ? `\n*Strukovne organizacije:* ${a.org}` : '';
   const pdvLine = a.pdv==='da' ? 'Obveznik PDV-a' : 'Nije obveznik PDV-a';
@@ -432,15 +433,29 @@ async function slackNotifyAutor(a, producerUrl){
     + `\n\n_Kliknite link ispod kako biste otvorili obrazac za producenta i dovršili ugovor:_\n`
     + `<${producerUrl}|➡️ Otvori obrazac za producenta>`;
 
+  const res = await fetch(SLACK_WEBHOOK, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:msg})
+  });
+  const data = await res.json();
+  // Slack incoming webhooks return plain "ok" text, not JSON with ts.
+  // We store approximate ts for thread replies using current time.
+  SLACK_TS = (Date.now()/1000).toFixed(6);
+}
+
+// ── SLACK — Download link u thread ──────────────────────────────
+async function slackNotifyDownload(a, p, dlUrl){
+  const msg = `✅ *Ugovor završen* — ${a.ime} / ${p.naslov}\n`
+    + `_Kliknite za ponovni preuzimanje Word dokumenta:_\n`
+    + `<${dlUrl}|⬇️ Preuzmi autorski ugovor (.docx)>`;
+
   await fetch(SLACK_WEBHOOK, {
     method:'POST',
-    mode:'no-cors',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({text:msg})
   });
 }
-
-// ── STEP 2 INIT (Producent) ──────────────────────────────────────
 let AD_FROM_URL = null;
 
 function initProducerStep(){
@@ -479,6 +494,48 @@ function initProducerStep(){
       if(el&&b)el.value=(b*p/100).toFixed(2);
     }
   });
+
+  // Auto-download if ?dl=1 in URL (triggered from Slack thread link)
+  if(params.get('dl')==='1'){
+    let PD_FROM_URL = null;
+    try { PD_FROM_URL = JSON.parse(decodeURIComponent(params.get('p')||'')); } catch(e){}
+
+    document.getElementById('step2').innerHTML=`
+      <div class="eyebrow">Preuzimanje</div>
+      <h1>Preuzmi<br><span class="red">Ugovor</span></h1>
+      <div class="producer-banner" style="margin-top:2rem">
+        <strong>Podaci autora</strong>
+        ${ad.ime} — ${ad.adresa}, ${ad.pbr} ${ad.grad}<br>
+        OIB: ${ad.oib} &nbsp;|&nbsp; IBAN: ${ad.iban}
+      </div>
+      <div class="btn-row" style="margin-top:2rem">
+        <button class="btn" id="dl-btn" onclick="triggerAutoDownload()">⬇️ Preuzmi Word dokument</button>
+      </div>
+      <div id="dl-result" style="display:none"></div>`;
+
+    window.triggerAutoDownload = async function(){
+      if(!PD_FROM_URL){ alert('Nedostaju podaci ugovora.'); return; }
+      const btn = document.getElementById('dl-btn');
+      btn.innerHTML='<span class="spin"></span>Generiram…';
+      btn.disabled=true;
+      try{
+        const blob = await makeDocx(PD_FROM_URL, AD_FROM_URL);
+        const fname = `Autorski_ugovor_${PD_FROM_URL.br}-2026_${AD_FROM_URL.ime.replace(/\s+/g,'_')}.docx`;
+        dlBlob(blob, fname);
+        btn.style.display='none';
+        document.getElementById('dl-result').style.display='';
+        document.getElementById('dl-result').innerHTML=`<div class="success">
+          <div class="success-icon">📄</div>
+          <h2>Preuzeto!</h2>
+          <p>Ugovor je preuzet na vaše računalo.</p>
+        </div>`;
+      }catch(err){
+        btn.innerHTML='⬇️ Preuzmi Word dokument';
+        btn.disabled=false;
+        alert('Greška: '+err.message);
+      }
+    };
+  }
 }
 
 function buildRates(){
@@ -498,7 +555,7 @@ function buildRates(){
 }
 
 // ── STEP 2 SUBMIT (Producent) ────────────────────────────────────
-async function step2Submit(format){
+async function step2Submit(){
   if(!AD_FROM_URL){ alert('Nedostaju podaci autora.'); return; }
 
   let ok=true;
@@ -523,38 +580,32 @@ async function step2Submit(format){
     nr,rate,uvjet:gv('uvjet')
   };
 
-  const btnDocx=document.getElementById('btn2-docx');
-  const btnPdf=document.getElementById('btn2-pdf');
-  const activeBtn = format==='pdf' ? btnPdf : btnDocx;
-  activeBtn.innerHTML='<span class="spin"></span>Generiram…';
-  btnDocx.disabled=true; btnPdf.disabled=true;
+  const btn=document.getElementById('btn2-docx');
+  btn.innerHTML='<span class="spin"></span>Generiram…';
+  btn.disabled=true;
 
   try{
     const blob = await makeDocx(PD, AD_FROM_URL);
-    const fname = `Autorski_ugovor_${PD.br}-2026_${AD_FROM_URL.ime.replace(/\s+/g,'_')}`;
+    const fname = `Autorski_ugovor_${PD.br}-2026_${AD_FROM_URL.ime.replace(/\s+/g,'_')}.docx`;
+    dlBlob(blob, fname);
 
-    if(format==='pdf'){
-      // Convert docx blob to PDF via browser print dialog
-      const url = URL.createObjectURL(blob);
-      const win = window.open('');
-      win.document.write(`<html><body style="margin:0"><iframe src="${url}" style="width:100%;height:100vh;border:none"></iframe></body></html>`);
-      win.document.title = fname;
-      setTimeout(()=>{ win.print(); URL.revokeObjectURL(url); }, 800);
-    } else {
-      dlBlob(blob, fname+'.docx');
-    }
+    // Send Slack thread reply with download link
+    const aParam = new URLSearchParams(location.search).get('a');
+    const pdEnc = encodeURIComponent(JSON.stringify(PD));
+    const dlUrl = location.origin + location.pathname + '?a=' + aParam + '&p=' + pdEnc + '&dl=1';
+    await slackNotifyDownload(AD_FROM_URL, PD, dlUrl);
 
-    btnDocx.style.display='none'; btnPdf.style.display='none';
+    btn.style.display='none';
     document.getElementById('result2').style.display='';
     document.getElementById('result2').innerHTML=`<div class="success">
       <div class="success-icon">📄</div>
       <h2>Ugovor preuzet!</h2>
-      <p>Pregledajte ga i, ako je sve u redu, pošaljite autoru na potpis.</p>
+      <p>Ugovor je preuzet na vaše računalo. Link za ponovni preuzimanje poslan je u Slack thread.</p>
     </div>`;
     document.getElementById('result2').scrollIntoView({behavior:'smooth',block:'center'});
   }catch(err){
-    btnDocx.innerHTML='Preuzmi kao Word →'; btnPdf.innerHTML='Preuzmi kao PDF →';
-    btnDocx.disabled=false; btnPdf.disabled=false;
+    btn.innerHTML='Preuzmi kao Word →';
+    btn.disabled=false;
     alert('Greška: '+err.message);
     console.error(err);
   }
