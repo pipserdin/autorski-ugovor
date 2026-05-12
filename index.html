@@ -254,10 +254,15 @@ textarea{resize:vertical;min-height:80px}
   <div class="fsec">
     <div class="ftitle">Angažman</div>
     <div class="grid">
-      <div class="f s2" id="f-pozicija">
-        <label>Pozicija / vrsta posla <span class="r">*</span></label>
-        <input type="text" id="pozicija" placeholder="npr. direktor fotografije, scenograf, montažer…">
+      <div class="f" id="f-pozicija">
+        <label>Pozicija — nominativ <span class="r">*</span> <span class="h">npr. direktor fotografije</span></label>
+        <input type="text" id="pozicija" placeholder="npr. direktor fotografije">
         <span class="errmsg">Unesite poziciju.</span>
+      </div>
+      <div class="f" id="f-pozicija_gen">
+        <label>Pozicija — genitiv <span class="r">*</span> <span class="h">npr. direktora fotografije</span></label>
+        <input type="text" id="pozicija_gen" placeholder="npr. direktora fotografije">
+        <span class="errmsg">Unesite poziciju u genitivu.</span>
       </div>
       <div class="f" id="f-datum_od">
         <label>Početak angažmana <span class="r">*</span></label>
@@ -279,6 +284,11 @@ textarea{resize:vertical;min-height:80px}
         <label>Naknada bruto (EUR) <span class="r">*</span></label>
         <input type="number" id="iznos_bruto" placeholder="0.00" step="0.01" min="0">
         <span class="errmsg">Unesite iznos.</span>
+      </div>
+      <div class="f" id="f-iznos_slovima">
+        <label>Naknada bruto — slovima <span class="r">*</span> <span class="h">npr. dvije tisuće eura</span></label>
+        <input type="text" id="iznos_slovima" placeholder="npr. dvije tisuće eura">
+        <span class="errmsg">Unesite iznos slovima.</span>
       </div>
       <div class="f" id="f-trosak">
         <label>Ukupni trošak isplatitelja (EUR) <span class="r">*</span></label>
@@ -306,7 +316,8 @@ textarea{resize:vertical;min-height:80px}
   </div>
 
   <div class="btn-row">
-    <button class="btn" id="btn2" onclick="step2Submit()">Generiraj i preuzmi ugovor →</button>
+    <button class="btn" id="btn2-docx" onclick="step2Submit('docx')">Preuzmi kao Word →</button>
+    <button class="btn btn-secondary" id="btn2-pdf" onclick="step2Submit('pdf')">Preuzmi kao PDF →</button>
   </div>
   <div id="result2" style="display:none"></div>
 </div>
@@ -421,7 +432,7 @@ async function slackNotifyAutor(a, producerUrl){
     + `\n\n_Kliknite link ispod kako biste otvorili obrazac za producenta i dovršili ugovor:_\n`
     + `<${producerUrl}|➡️ Otvori obrazac za producenta>`;
 
-await fetch(SLACK_WEBHOOK, {
+  await fetch(SLACK_WEBHOOK, {
     method:'POST',
     mode:'no-cors',
     headers:{'Content-Type':'application/json'},
@@ -487,14 +498,15 @@ function buildRates(){
 }
 
 // ── STEP 2 SUBMIT (Producent) ────────────────────────────────────
-async function step2Submit(){
+async function step2Submit(format){
   if(!AD_FROM_URL){ alert('Nedostaju podaci autora.'); return; }
 
   let ok=true;
   [['producent',v=>v!==''],['br_ugovora',v=>v.trim()!==''],['datum_potpisa',v=>v!==''],
    ['vrsta_djela',v=>v!==''],['naslov_djela',v=>v.trim()!==''],['pozicija',v=>v.trim()!==''],
+   ['pozicija_gen',v=>v.trim()!==''],
    ['datum_od',v=>v!==''],['datum_do',v=>v!==''],
-   ['iznos_bruto',v=>+v>0],['trosak',v=>+v>0]
+   ['iznos_bruto',v=>+v>0],['iznos_slovima',v=>v.trim()!==''],['trosak',v=>+v>0]
   ].forEach(([id,chk])=>{const v=gv(id);const p=chk(v);setErr(id,!p);if(!p)ok=false;});
   if(!ok)return;
 
@@ -505,32 +517,44 @@ async function step2Submit(){
   const PD={
     producent:gv('producent'),br:gv('br_ugovora').trim(),datum:gv('datum_potpisa'),
     vrsta:gv('vrsta_djela'),naslov:gv('naslov_djela').trim(),opis:gv('opis_djela').trim(),
-    poz:gv('pozicija').trim(),od:gv('datum_od'),do:gv('datum_do'),
-    bruto:gv('iznos_bruto'),trosak:gv('trosak'),
+    poz:gv('pozicija').trim(),poz_gen:gv('pozicija_gen').trim(),
+    od:gv('datum_od'),do:gv('datum_do'),
+    bruto:gv('iznos_bruto'),iznos_slovima:gv('iznos_slovima').trim(),trosak:gv('trosak'),
     nr,rate,uvjet:gv('uvjet')
   };
 
-  const btn=document.getElementById('btn2');
-  btn.innerHTML='<span class="spin"></span>Generiram ugovor…';
-  btn.disabled=true;
+  const btnDocx=document.getElementById('btn2-docx');
+  const btnPdf=document.getElementById('btn2-pdf');
+  const activeBtn = format==='pdf' ? btnPdf : btnDocx;
+  activeBtn.innerHTML='<span class="spin"></span>Generiram…';
+  btnDocx.disabled=true; btnPdf.disabled=true;
 
   try{
     const blob = await makeDocx(PD, AD_FROM_URL);
-    const pp = ppSplit(PD.producent);
-    const fname = `Autorski_ugovor_${PD.br}-2026_${AD_FROM_URL.ime.replace(/\s+/g,'_')}.docx`;
-    dlBlob(blob, fname);
+    const fname = `Autorski_ugovor_${PD.br}-2026_${AD_FROM_URL.ime.replace(/\s+/g,'_')}`;
 
-    btn.style.display='none';
+    if(format==='pdf'){
+      // Convert docx blob to PDF via browser print dialog
+      const url = URL.createObjectURL(blob);
+      const win = window.open('');
+      win.document.write(`<html><body style="margin:0"><iframe src="${url}" style="width:100%;height:100vh;border:none"></iframe></body></html>`);
+      win.document.title = fname;
+      setTimeout(()=>{ win.print(); URL.revokeObjectURL(url); }, 800);
+    } else {
+      dlBlob(blob, fname+'.docx');
+    }
+
+    btnDocx.style.display='none'; btnPdf.style.display='none';
     document.getElementById('result2').style.display='';
     document.getElementById('result2').innerHTML=`<div class="success">
       <div class="success-icon">📄</div>
       <h2>Ugovor preuzet!</h2>
-      <p>Ugovor se preuzima na vaše računalo. Pregledajte ga i, ako je sve u redu, pošaljite autoru na potpis.</p>
+      <p>Pregledajte ga i, ako je sve u redu, pošaljite autoru na potpis.</p>
     </div>`;
     document.getElementById('result2').scrollIntoView({behavior:'smooth',block:'center'});
   }catch(err){
-    btn.innerHTML='Generiraj i preuzmi ugovor →';
-    btn.disabled=false;
+    btnDocx.innerHTML='Preuzmi kao Word →'; btnPdf.innerHTML='Preuzmi kao PDF →';
+    btnDocx.disabled=false; btnPdf.disabled=false;
     alert('Greška: '+err.message);
     console.error(err);
   }
@@ -580,7 +604,7 @@ async function makeDocx(p,a){
     P([R('u Zagrebu, dana '),R(fmtD(p.datum),true),R(' godine sklapaju')],{al:AlignmentType.CENTER,b:0,a:280}),
 
     ART(1),P([R(`PRODUCENT proizvodi ${p.vrsta}${p.opis?' — '+p.opis:''} pod radnim naslovom „${p.naslov}" (dalje DJELO).`)]),
-    ART(2),P([R(`AUTOR prihvaća da pod uvjetima iz ovog Ugovora preuzme u ekipi DJELA poslove i dužnost `),R(p.poz,true),R(` te se obvezuje da će angažman i poslove obavljati osobno, savjesno i profesionalno u skladu sa scenarijem, operativnim planom produkcije, te osobito po uputama redatelja i PRODUCENTA ili njegovog predstavnika.`)]),
+    ART(2),P([R(`AUTOR prihvaća da pod uvjetima iz ovog Ugovora preuzme u ekipi DJELA poslove i dužnost `),R(p.poz_gen,true),R(` te se obvezuje da će angažman i poslove obavljati osobno, savjesno i profesionalno u skladu sa scenarijem, operativnim planom produkcije, te osobito po uputama redatelja i PRODUCENTA ili njegovog predstavnika.`)]),
     ART(3),P([R(`Prema operativnom planu proizvodnje, AUTOR je u obvezi prema ovom ugovoru od `),R(fmtD(p.od),true),R(` do `),R(fmtD(p.do),true),R(` (radno vrijeme prema planu i dnevnoj dispoziciji), odnosno do kraja snimanja.`)]),
     SUB('3.1','Obveza AUTORA uključuje i neophodan period za pripremu snimanja i eventualno spremanje ili druge radove nakon ili prije snimanja.'),
     SUB('3.2','U slučaju da radi više sile dođe do promjene u terminu snimanja, AUTOR je dužan raditi na DJELU do svršetka posla bez posebne naknade.'),
@@ -593,7 +617,7 @@ async function makeDocx(p,a){
     SUB('5.3','ETIČKI KODEKS primjenjuje se na projekte sufinancirane sredstvima Hrvatskog audiovizualnog centra.'),
     SUB('5.4','Potpisom ovog Ugovora AUTOR potvrđuje da mu je ETIČKI KODEKS bio dostupan na uvid prije sklapanja Ugovora, da je upoznat sa sadržajem i svrhom ETIČKOG KODEKSA te da prihvaća obvezu postupanja u skladu s njegovim odredbama tijekom čitavog svog angažmana na projektu.'),
     ART(6),P([R('Ukoliko PRODUCENT krene u snimanje DJELA i pod uvjetom da AUTOR izvrši sve svoje ugovorne obveze iz ovog ugovora te za rad na DJELU i prijenos, odnosno osnivanje svih prava u korist PRODUCENTA vremenski, sadržajno i prostorno neograničeno, isti će isplatiti AUTORU naknadu u iznosu od')]),
-    P([R(`${bruto.toFixed(2)} EUR bruto (slovima: ${iznosR} eura)`,true)],{al:AlignmentType.CENTER,b:60,a:60}),
+    P([R(`${bruto.toFixed(2)} EUR bruto (slovima: ${p.iznos_slovima})`,true)],{al:AlignmentType.CENTER,b:60,a:60}),
     P([R(`dok je ukupni trošak isplatitelja ${trosak.toFixed(2)} EUR. Navedeni ukupni trošak isplatitelja obuhvaća neto iznos honorara, kao i sva pripadajuća davanja koja se obračunavaju na ili iz autorskog honorara.`)]),
     P([R(`Način plaćanja: Na IBAN naveden u glavi ugovora, ${placTekst}`)]),
     ...rateLines.map(l=>P([R(l)],{ind:true,a:60})),
